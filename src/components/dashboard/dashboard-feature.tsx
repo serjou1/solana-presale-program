@@ -15,6 +15,7 @@ const links: { label: string; href: string }[] = [
 ]
 import IDL from './IDL.json';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { SYSTEM_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/native/system';
 
 const TOKEN_PROGRAM = TOKEN_PROGRAM_ID;
 

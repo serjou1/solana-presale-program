@@ -26,7 +26,7 @@ export enum ClusterNetwork {
 export const defaultClusters: Cluster[] = [
   {
     name: 'mainnet-beta',
-    endpoint: 'https://mainnet.helius-rpc.com/?api-key=ec3f9bea-37a6-4b86-95ea-1d85c2947c10',
+    endpoint: 'https://wandering-quick-surf.solana-mainnet.quiknode.pro/7e0ea05258629b697614d8c356dc1a0abdc169df',
     network: ClusterNetwork.Mainnet,
   },
   {

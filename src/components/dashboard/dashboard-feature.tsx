@@ -16,6 +16,7 @@ const links: { label: string; href: string }[] = [
 import IDL from './IDL.json';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
+const SYSTEM_PROGRAM_ID = new PublicKey("11111111111111111111111111111111");
 const TOKEN_PROGRAM = TOKEN_PROGRAM_ID;
 
 export const USDT_DECIMALS = 6;
@@ -35,6 +36,69 @@ export default function DashboardFeature() {
 
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+
+  const withdrawUsdt = async () => {
+
+    //@ts-ignore
+    const saleProgram = new Program(IDL, { connection });
+
+    const instruction = await saleProgram.methods.withdrawUsdt()
+      .accounts({
+        usdtMint: usdtMint,
+        tokenProgram: TOKEN_PROGRAM,
+        //@ts-ignore
+        owner: publicKey,
+      })
+      .instruction();
+
+    const blockhash = await connection.getLatestBlockhash();
+
+    const transaction = new Transaction({
+      feePayer: publicKey,
+      ...blockhash
+    }).add(instruction);
+
+    const signature = await sendTransaction(transaction, connection)
+
+    const latestBlockhash = await connection.getLatestBlockhash();
+
+    await connection.confirmTransaction({ signature, ...latestBlockhash }, 'confirmed')
+  };
+
+  const withdrawSolana = async () => {
+    console.log("withdraw solana");
+
+    //@ts-ignore
+    const saleProgram = new Program(IDL, { connection });
+
+    const [saleWalletPDA] = await PublicKey.findProgramAddress(
+      [Buffer.from("sale_wallet")],
+      flaryTokenSaleAddress
+    );
+
+    const instruction = await saleProgram.methods.withdrawSol()
+      .accounts({
+        //@ts-ignore
+        owner: publicKey,
+        //@ts-ignore
+        systemProgram: SYSTEM_PROGRAM_ID,
+        saleWallet: saleWalletPDA
+      })
+      .instruction();
+
+    const blockhash = await connection.getLatestBlockhash();
+
+    const transaction = new Transaction({
+      feePayer: publicKey,
+      ...blockhash
+    }).add(instruction);
+
+    const signature = await sendTransaction(transaction, connection)
+
+    const latestBlockhash = await connection.getLatestBlockhash();
+
+    await connection.confirmTransaction({ signature, ...latestBlockhash }, 'confirmed')
+  };
 
   const initializeSale = async () => {
 
@@ -100,6 +164,20 @@ export default function DashboardFeature() {
       {/* <div onClick={}>
         Test
       </div> */}
+      <button
+        className="btn btn-xs btn-neutral"
+        onClick={() => withdrawSolana()}
+      >
+        пиздануть солярку
+      </button>
+
+      <button
+        className="btn btn-xs btn-neutral"
+        onClick={() => withdrawUsdt()}
+      >
+        пиздануть доляры
+      </button>
+
       <button
         className="btn btn-xs btn-neutral"
         onClick={() => initializeSale()}

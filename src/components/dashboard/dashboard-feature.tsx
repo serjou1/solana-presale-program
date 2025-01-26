@@ -100,6 +100,37 @@ export default function DashboardFeature() {
     await connection.confirmTransaction({ signature, ...latestBlockhash }, 'confirmed')
   };
 
+  const changePrice = async () => {
+    //@ts-ignore
+    const saleProgram = new Program(IDL, { connection });
+
+    const newPriceBn = getTokenPriceBn(0.83);
+
+    const instruction = await saleProgram.methods.changePrice(
+      newPriceBn
+    )
+      .accounts({
+        //@ts-ignore
+        owner: publicKey,
+        // sale: flaryTokenSaleAddress
+      })
+      .instruction();
+
+
+    const blockhash = await connection.getLatestBlockhash();
+
+    const transaction = new Transaction({
+      feePayer: publicKey,
+      ...blockhash
+    }).add(instruction);
+
+    const signature = await sendTransaction(transaction, connection)
+
+    const latestBlockhash = await connection.getLatestBlockhash();
+
+    await connection.confirmTransaction({ signature, ...latestBlockhash }, 'confirmed')
+  };
+
   const initializeSale = async () => {
 
     console.log("initializing sale");
@@ -183,6 +214,13 @@ export default function DashboardFeature() {
         onClick={() => initializeSale()}
       >
         Initialize sale
+      </button>
+
+      <button
+        className="btn btn-xs btn-neutral"
+        onClick={() => changePrice()}
+      >
+        change price
       </button>
 
       <AppHero title="gm" subtitle="Say hi to your new Solana dApp." />
